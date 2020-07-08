@@ -30,7 +30,7 @@ Sometimes when connecting systems together it remains important to use the produ
 * Determine your staging url
 
   ```
-  dig api.weather.bom.gov.au | grep -m 1 -oE '[a-z.]+edgekey.net' | sed 's/edgekey/edgekey-staging/'
+  dig PRODUCTIONHOSTNAME | grep -m 1 -oE '[a-z.]+edgekey.net' | sed 's/edgekey/edgekey-staging/'
   ```
 
 * Run mitmdump using the plugin, configure your production and staging hostname

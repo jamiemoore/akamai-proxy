@@ -1,27 +1,31 @@
 """
 Proxy Akamai Production Requests to Staging
 """
-from mitmproxy import http, ctx
 
-production = "www.akamai.com"
-staging = "www.akamai.com.edgekey-staging.net"
-
-
-def load(l):
-    ctx.log.info("Registering option 'production'")
-    l.add_option("production", str, production, "Production Hostname")
-    ctx.log.info("Registering option 'staging'")
-    l.add_option("staging", str, staging, "Staging Hostname")
+import configparser
+from mitmproxy import http, ctx, proxy
 
 
-def configure(updated):
-    if "production" in updated:
-        ctx.log.info("production hostname option value: %s" % ctx.options.production)
-    if "staging" in updated:
-        ctx.log.info("staging hostname option value: %s" % ctx.options.staging)
+config = configparser.ConfigParser()
+with open("config.ini", "r") as file_object:
+    config.read_file(file_object)
+
+for prod, stage in config["environments"].items():
+    print("REDIRECTING:", prod, "->", stage)
+
+
+def server_connect(server_connection):
+    # ctx.log.info("server  %s" % server_connection)
+    # ctx.log.info("server sni  %s" % server_connection.server.sni)
+    for prod, stage in config["environments"].items():
+        if server_connection.server.sni == stage:
+            server_connection.server.sni = prod
+            # ctx.log.info("new server sni  %s" % server_connection.server.sni)
 
 
 def request(flow: http.HTTPFlow) -> None:
-    if flow.request.pretty_host == ctx.options.production:
-        flow.request.host = ctx.options.staging
-        flow.request.headers["Host"] = ctx.options.production
+    for prod, stage in config["environments"].items():
+        if flow.request.host == prod:
+            # ctx.log.info("ORIGIONAL: flow header host: %s" % flow.request.headers["Host"])
+            flow.request.host = stage
+            flow.request.headers["Host"] = prod

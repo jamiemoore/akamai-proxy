@@ -53,3 +53,17 @@ Sometimes when connecting systems together it remains important to use the produ
 
 - You can use the SwitchyOmegaProxy chrome extension too for interactive sessions
 - May need to trust the mitmproxy cert or use the insecure setting
+
+## Development notes
+
+- Don't allow local config.ini changes to be detected by git after adding to .gitignore
+
+  ```
+  git update-index --no-assume-unchanged config.ini
+  git update-index --assume-unchanged config.ini
+  ```
+
+* Example command to create a new config file if you have the akamai cli installed.
+```
+ echo "[environments]" > config.ini; akamai property-manager leh -g XXXXXX -c V-XXXXXX | jq -r '.[] | (.domainPrefix) + " = " + (.domainPrefix + ".edgekey-staging.net")' >> config.ini
+ ```

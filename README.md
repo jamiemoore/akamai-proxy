@@ -23,7 +23,7 @@ Sometimes when connecting systems together it remains important to use the produ
 * Add the root certificate to the keychain
 
 ```
-
+sudo security add-trusted-cert -d -p ssl -p basic -k /Library/Keychains/System.keychain mitmproxy-ca-cert.pem
 ```
 
 ## Usage

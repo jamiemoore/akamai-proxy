@@ -20,6 +20,12 @@ Sometimes when connecting systems together it remains important to use the produ
   curl https://raw.githubusercontent.com/jamiemoore/akamai-proxy/master/akamai-proxy.py -O
   ```
 
+* Add the root certificate to the keychain
+
+```
+
+```
+
 ## Usage
 
 - Determine your staging url, this works with the default naming standard.
@@ -63,7 +69,20 @@ Sometimes when connecting systems together it remains important to use the produ
   git update-index --assume-unchanged config.ini
   ```
 
+
+* Get your contract ID
+```
+http --auth-type=edgegrid -a default: -b :/contract-api/v1/contracts/identifiers 
+```
+* Get your group ID
+```
+http --auth-type=edgegrid -a default: -b :/identity-management/v3/user-admin/groups
+```
+* Get the edgehostnames
+```
+http --auth-type=edgegrid -a default: -b :/papi/v1/edgehostnames contractId=X-XXXXXX groupId==XXXXXX
+```
 * Example command to create a new config file if you have the akamai cli installed.
 ```
- echo "[environments]" > config.ini; akamai property-manager leh -g XXXXXX -c V-XXXXXX | jq -r '.[] | (.domainPrefix) + " = " + (.domainPrefix + ".edgekey-staging.net")' >> config.ini
+echo "[environments]" > config.ini;http --auth-type=edgegrid -a default: -b :/papi/v1/hostnames contractId==X-XXXXXXX groupId==XXXXXX | jq -r '.hostnames.items[] | select(.stagingCnameTo != null) | (.cnameFrom) + " = " + (.stagingCnameTo)' >> config.ini; sed -i '' 's/\.edgekey\./\.edgekey-staging\./g' config.ini
  ```
